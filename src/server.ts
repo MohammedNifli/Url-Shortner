@@ -11,14 +11,11 @@ connectDB()
 const app=express();
 app.use(express.json());
 
-// app.use(osInfoMiddleware)
 
-app.use('/url',urlRoute)
 
-app.get('/',(req:Request,res:Response)=>{
-    res.send('Hello world')
+app.use('/',urlRoute)
 
-})
+
 const port= process.env.PORT || 3000;
 
 app.listen(port,()=>{

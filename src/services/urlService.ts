@@ -102,7 +102,6 @@ class UrlShortenService implements IUrlService {
           }
         }
   
-        // Update device type
         if (deviceInfo?.deviceType) {
           const deviceEntry = updateData.deviceType.find(
             entry => entry.deviceName === deviceInfo.deviceType
@@ -130,6 +129,52 @@ class UrlShortenService implements IUrlService {
     }
   }
   
+
+  public async getAnalytics(alias: string): Promise<any> {
+    try {
+        const urlDoc = await this.urlRepository.getUrl(alias);
+        
+      
+        const doc = Array.isArray(urlDoc) ? urlDoc[0] : urlDoc;
+        
+        if (!doc) {
+            throw new Error(`Short URL with alias '${alias}' not found.`);
+        }
+
+        const totalClicks = doc.totalClicks;
+        const uniqueUsers = doc.uniqueUsers?.length || 0;
+        
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        
+        const clicksByDate = (doc.clicksByDate || []).filter((entry: any) => {
+            const entryDate = new Date(entry.date);
+            return entryDate >= sevenDaysAgo;
+        });
+
+        const osType = (doc.osType || []).map((entry: any) => ({
+            osName: entry.osName,
+            uniqueClicks: entry.uniqueClicks,
+            uniqueUsers: entry.uniqueUsers?.length || 0,
+        }));
+
+        const deviceType = (doc.deviceType || []).map((entry: any) => ({
+            deviceName: entry.deviceName,
+            uniqueClicks: entry.uniqueClicks,
+            uniqueUsers: entry.uniqueUsers?.length || 0,
+        }));
+
+        return {
+            totalClicks,
+            uniqueUsers,
+            clicksByDate,
+            osType,
+            deviceType,
+        };
+    } catch (error) {
+        throw error;
+    }
+}
   
   
 }

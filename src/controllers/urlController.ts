@@ -83,18 +83,21 @@ class ShortUrlController implements IUrlController {
     }
   }
 
-  // public async getAnalytics(req:Request,res:Response):Promise<Response>{
-  //   const {alias}=req.params;
-  //   try{
-  //     const analyticsData = await
-
-  //   }catch(error){
-
-  //   }
-
-  // }
-
-  
+  public async getAnalytics(req: Request, res: Response): Promise<void> {
+    const { alias } = req.params;
+    try {
+      const analyticsData = await this.urlService.getAnalytics(alias);
+       res.status(200).json(analyticsData);
+       return
+    } catch (error) {
+      console.error("Error in AnalyticsController:", error);
+       res.status(500).json({
+        message:
+          error instanceof Error ? error.message : "Internal Server Error",
+      });
+      return;
+    }
+  }
 }
 
 export default ShortUrlController;
