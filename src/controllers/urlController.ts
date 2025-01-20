@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { HttpStatusCode } from "../enums/httpStatus.js";
 import { IUrlController } from "../Interfaces/url/IUrlController";
 import { IUrlService } from "../Interfaces/url/IUrlService";
@@ -55,11 +55,12 @@ class ShortUrlController implements IUrlController {
     req: EnhancedRequest,
     res: Response
   ): Promise<any> {
-    const { alias } = req.params;
-    const deviceInfo = req.deviceInfo;
-    const osName = deviceInfo?.osName;
+   
 
     try {
+      const { alias } = req.params;
+      const deviceInfo = req.deviceInfo;
+      const osName = deviceInfo?.osName;
       await this.urlService.trackUrl(alias, deviceInfo);
 
       const data = await this.urlService.getUrl(alias);
@@ -85,8 +86,9 @@ class ShortUrlController implements IUrlController {
   }
 
   public async getAnalytics(req: Request, res: Response): Promise<void> {
-    const { alias } = req.params;
+    
     try {
+      const { alias } = req.params;
       const analyticsData = await this.urlService.getAnalytics(alias);
       res.status(200).json(analyticsData);
       return;
@@ -132,24 +134,30 @@ class ShortUrlController implements IUrlController {
   }
 
   
-public async getOverallAnalytics(req: Request, res: Response): Promise<void> {
-  try {
-    const {userId}=req.params;
-    console.log("hello world")
+  public async getOverallAnalytics(req: Request, res: Response): Promise<void> {
+    // Check if user exists first
+    if (!req.user) {
+      res.status(401).json({ message: 'Unauthorized: User not found' });
+      return;
+    }
+  
+    const userId = req.user.userId;  //u Now TypeScript knows userId exists
+    console.log('_________________>',userId)
     
-    
-    const analyticsData = await this.urlService.getOverallAnalytics(userId);
-
-    
-    res.status(200).json(analyticsData);
-  } catch (error) {
-    
-    console.log(error);
-    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      message: error instanceof Error ? error.message : "Internal Server Error",
-    });
+    try {
+      console.log("hello world", userId);
+      const analyticsData = await this.urlService.getOverallAnalytics(userId);
+      res.status(200).json(analyticsData);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        message: error instanceof Error ? error.message : "Internal Server Error",
+      });
+    }
   }
-}
+
+
+
 
 }
 
