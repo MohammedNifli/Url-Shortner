@@ -10,7 +10,8 @@ class ShortUrlController implements IUrlController {
     this.urlService = urlService;
   }
   public async create(req: Request, res: Response): Promise<void> {
-    const { originalUrl, customAlias, topic ,userId} = req.body;
+    const { originalUrl, customAlias, topic } = req.body;
+    const user=req.user?.userId
     console.log("body data", req.body);
     
     if (!originalUrl || !customAlias || !topic) {

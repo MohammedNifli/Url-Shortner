@@ -15,7 +15,7 @@ const shortenUrlController = new ShortUrlController(urlShortenService);
 
 
 urlRoute.post('/shorten', createUrlRateLimiter,shortenUrlController.create.bind(shortenUrlController));
-urlRoute.get('/shorten/:alias',authenticateJWT,osInfoMiddleware,shortenUrlController.redirectToOriginalUrl.bind(shortenUrlController))
+urlRoute.get('/shorten/:alias',osInfoMiddleware,shortenUrlController.redirectToOriginalUrl.bind(shortenUrlController))
 urlRoute.get('/analytics/overall',authenticateJWT,shortenUrlController.getOverallAnalytics.bind(shortenUrlController));
 urlRoute.get('/analytics/:alias',authenticateJWT,shortenUrlController.getAnalytics.bind(shortenUrlController))
 
