@@ -16,6 +16,7 @@
     "device-detector-js": "^3.0.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "ioredis": "^5.4.2",
     "mongoose": "^8.9.5",
     "nanoid": "^5.0.9",
     "shortid": "^2.2.16",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.0",
+    "@types/ioredis": "^4.28.10",
     "@types/nanoid": "^2.1.0",
     "@types/node": "^22.10.7",
     "@types/shortid": "^2.2.0",

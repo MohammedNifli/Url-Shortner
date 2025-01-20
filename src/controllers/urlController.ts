@@ -10,9 +10,9 @@ class ShortUrlController implements IUrlController {
     this.urlService = urlService;
   }
   public async create(req: Request, res: Response): Promise<void> {
-    const { originalUrl, customAlias, topic, userId } = req.body;
+    const { originalUrl, customAlias, topic ,userId} = req.body;
     console.log("body data", req.body);
-
+    
     if (!originalUrl || !customAlias || !topic) {
       res.status(HttpStatusCode.BAD_REQUEST).json({
         message: "Both originalUrl and customAlias are required.",
@@ -21,6 +21,7 @@ class ShortUrlController implements IUrlController {
     }
 
     try {
+     
       const createdShortUrl = await this.urlService.create(
         originalUrl,
         customAlias,
@@ -87,17 +88,69 @@ class ShortUrlController implements IUrlController {
     const { alias } = req.params;
     try {
       const analyticsData = await this.urlService.getAnalytics(alias);
-       res.status(200).json(analyticsData);
-       return
+      res.status(200).json(analyticsData);
+      return;
     } catch (error) {
       console.error("Error in AnalyticsController:", error);
-       res.status(500).json({
+      res.status(500).json({
         message:
           error instanceof Error ? error.message : "Internal Server Error",
       });
       return;
     }
   }
+
+  public async getAnalyticsByTopic(req: Request, res: Response): Promise<void> {
+    const { topic } = req.params;
+    console.log("hello world")
+
+    if (!topic) {
+      res.status(HttpStatusCode.BAD_REQUEST).json({
+        message: "Topic parameter is required.",
+      });
+      return;
+    }
+
+    try {
+      const analyticsData = await this.urlService.getAnalyticsByTopic(topic);
+
+      if (!analyticsData) {
+        res.status(HttpStatusCode.NOT_FOUND).json({
+          message: `No analytics data found for topic '${topic}'.`,
+        });
+        return;
+      }
+
+      res.status(HttpStatusCode.OK).json(analyticsData);
+    } catch (error) {
+      console.error("Error in AnalyticsController:", error);
+      res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+        message:
+          error instanceof Error ? error.message : "Internal Server Error",
+      });
+    }
+  }
+
+  
+public async getOverallAnalytics(req: Request, res: Response): Promise<void> {
+  try {
+    const {userId}=req.params;
+    console.log("hello world")
+    
+    
+    const analyticsData = await this.urlService.getOverallAnalytics(userId);
+
+    
+    res.status(200).json(analyticsData);
+  } catch (error) {
+    
+    console.log(error);
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      message: error instanceof Error ? error.message : "Internal Server Error",
+    });
+  }
+}
+
 }
 
 export default ShortUrlController;

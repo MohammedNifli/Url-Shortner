@@ -5,7 +5,7 @@ class UrlRepository implements IUrlRepository{
   
 
     
-    public async create(url: string, customAlias: string, topic: string, shortUrl: string): Promise<any> {
+    public async create(url: string, customAlias: string, topic: string, shortUrl: string,userId:string): Promise<any> {
         try {
        
             if (!url || !customAlias || !shortUrl) {
@@ -16,7 +16,8 @@ class UrlRepository implements IUrlRepository{
                 shortUrl: shortUrl,
                 originalUrl: url,
                 customAlias: customAlias,
-                topic: topic
+                topic: topic,
+                createdBy:userId
             });
     
             return createdData; 
@@ -73,7 +74,7 @@ public async saveUrl(urlDoc: any): Promise<void> {
           throw new Error("shortUrl is missing in the URL document.");
         }
   
-        // Using the shortUrl from the original document
+        
         const updateResult = await UrlModel.findOneAndUpdate(
           { shortUrl: urlDoc.shortUrl },
           {
@@ -81,6 +82,7 @@ public async saveUrl(urlDoc: any): Promise<void> {
               totalClicks: urlDoc.totalClicks,
               customAlias:urlDoc?.customAlias,
               uniqueUsers: urlDoc.uniqueUsers,
+              topic:urlDoc.topic,
               clicksByDate: urlDoc.clicksByDate,
               osType: urlDoc.osType,
               deviceType: urlDoc.deviceType
@@ -97,6 +99,43 @@ public async saveUrl(urlDoc: any): Promise<void> {
       throw new Error("Error saving URL");
     }
   }
+
+  public async getAnalyticsByTopic(topic: string): Promise<any> {
+    try {
+      
+      const urlDoc = await UrlModel.find({ topic });
+  
+      
+      if (urlDoc && urlDoc.length === 0) {
+        return null; 
+      }
+  
+      return urlDoc; 
+    } catch (error) {
+      throw error; 
+    }
+  }
+  
+
+// Repository
+public async getOverallAnalytics(userId: string): Promise<any> {
+    try {
+      console.log('Fetching URLs for user:', userId);
+  
+
+      const urlDocs = await UrlModel.find({
+        createdBy: userId, 
+      });
+  
+
+      return urlDocs;
+    } catch (error) {
+      
+      console.log(error);
+      throw error;
+    }
+  }
+  
   
 
 

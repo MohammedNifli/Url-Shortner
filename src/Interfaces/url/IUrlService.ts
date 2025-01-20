@@ -7,4 +7,6 @@ export interface IUrlService{
         deviceInfo: EnhancedRequest["deviceInfo"]
       ): Promise<void>
       getAnalytics(alias:string):Promise<any>
+      getAnalyticsByTopic(topic:string):Promise<any>
+      getOverallAnalytics(userId:string):Promise<any>
 }
