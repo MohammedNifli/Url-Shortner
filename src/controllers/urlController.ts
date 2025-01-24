@@ -3,6 +3,7 @@ import { HttpStatusCode } from "../enums/httpStatus.js";
 import { IUrlController } from "../Interfaces/url/IUrlController";
 import { IUrlService } from "../Interfaces/url/IUrlService";
 import { EnhancedRequest } from "../types/custom-request.js";
+import {get} from '../utils/redisUtils.js'
 
 class ShortUrlController implements IUrlController {
   private urlService: IUrlService;
@@ -11,14 +12,15 @@ class ShortUrlController implements IUrlController {
   }
   public async create(req: Request, res: Response): Promise<void> {
     const { originalUrl, customAlias, topic } = req.body;
-    const user=req.user?.userId
-    console.log("body data", req.body);
+    const userId=req.user?.userId as string
+    console.log("user Id",userId)
+   
     
     if (!originalUrl || !customAlias || !topic) {
       res.status(HttpStatusCode.BAD_REQUEST).json({
         message: "Both originalUrl and customAlias are required.",
       });
-      return;
+      return; 
     }
 
     try {
@@ -56,26 +58,36 @@ class ShortUrlController implements IUrlController {
     req: EnhancedRequest,
     res: Response
   ): Promise<any> {
-   
-
     try {
       const { alias } = req.params;
       const deviceInfo = req.deviceInfo;
       const osName = deviceInfo?.osName;
+  
+      
       await this.urlService.trackUrl(alias, deviceInfo);
-
+  
+    
+      const longUrl = await get(alias);
+      if (longUrl) {
+     
+        return res.redirect(longUrl);
+      }
+  
+     
       const data = await this.urlService.getUrl(alias);
-
+  
+    
       if (!data || data.length === 0) {
-        return res.status(404).json({
+        return res.status(HttpStatusCode.NOT_FOUND).json({
           message: `Short URL with alias '${alias}' not found.`,
           osName,
         });
       }
-
+  
+   
       const originalUrl = data[0].originalUrl;
-
-      return res.redirect(originalUrl);
+      return res.redirect(originalUrl); // 
+  
     } catch (error) {
       console.error("Error during URL redirection:", error);
       return res.status(500).json({
@@ -85,6 +97,7 @@ class ShortUrlController implements IUrlController {
       });
     }
   }
+  
 
   public async getAnalytics(req: Request, res: Response): Promise<void> {
     

@@ -11,6 +11,7 @@ class UrlRepository implements IUrlRepository{
             if (!url || !customAlias || !shortUrl) {
                 throw new Error("Missing required fields: originalUrl, customAlias, or shortUrl.");
             }
+            console.log("userId",userId)
     
             const createdData = await UrlModel.create({
                 shortUrl: shortUrl,

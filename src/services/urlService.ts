@@ -9,6 +9,7 @@ import {
   UrlDoc,
   TopicUrlInfo,
 } from "../types/url-types";
+import {set} from '../utils/redisUtils.js'
 
 class UrlShortenService implements IUrlService {
   private urlRepository: IUrlRepository;
@@ -24,7 +25,7 @@ class UrlShortenService implements IUrlService {
   ): Promise<any> {
     try {
       const shortUrl = generateShortUrl(customAlias);
-      console.log("short urrrrl", shortUrl);
+   
       const createdData = await this.urlRepository.create(
         url,
         customAlias,
@@ -32,6 +33,10 @@ class UrlShortenService implements IUrlService {
         shortUrl,
         userId
       );
+
+      console.log('createrdData',createdData)
+      
+      set(createdData?.customAlias,createdData?.originalUrl)
       return createdData;
     } catch (error: any) {
       throw new Error(error.message);
